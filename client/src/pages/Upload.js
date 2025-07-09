@@ -26,6 +26,8 @@ const Upload = ({ user }) => {
       if (response.ok) {
         const data = await response.json();
         setSubjects(data);
+      } else {
+        console.log('Failed to fetch subjects:', response.status);
       }
     } catch (error) {
       console.error('Error fetching subjects:', error);

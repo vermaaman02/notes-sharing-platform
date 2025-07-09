@@ -19,7 +19,23 @@ function App() {
     const userData = localStorage.getItem('user');
     
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      try {
+        // Parse and validate user data
+        const parsedUser = JSON.parse(userData);
+        
+        // Basic token format validation
+        if (token && token.includes('.') && parsedUser.id) {
+          setUser(parsedUser);
+        } else {
+          // Invalid token format, clear storage
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      } catch (error) {
+        // Invalid JSON in localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
     setLoading(false);
   }, []);

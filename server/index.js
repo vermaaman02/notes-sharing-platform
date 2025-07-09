@@ -202,6 +202,29 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// Validate token
+app.get('/api/auth/validate', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ 
+      valid: true, 
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        university: user.university
+      }
+    });
+  } catch (error) {
+    console.error('Token validation error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Get user profile
 app.get('/api/auth/profile', authenticateToken, async (req, res) => {
   try {
