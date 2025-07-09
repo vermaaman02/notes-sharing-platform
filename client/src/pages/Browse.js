@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import config from '../config/api';
 import './Browse.css';
 
 const Browse = ({ user }) => {
@@ -8,22 +9,13 @@ const Browse = ({ user }) => {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [subjects, setSubjects] = useState([]);
 
-  useEffect(() => {
-    fetchNotes();
-    fetchSubjects();
-  }, []);
-
-  useEffect(() => {
-    fetchNotes();
-  }, [selectedSubject, searchTerm]);
-
-  const fetchNotes = async () => {
+  const fetchNotes = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (selectedSubject) params.append('subject', selectedSubject);
       if (searchTerm) params.append('search', searchTerm);
 
-      const response = await fetch(`http://localhost:5001/api/notes?${params}`);
+      const response = await fetch(`${config.API_BASE_URL}/notes?${params}`);
       if (response.ok) {
         const data = await response.json();
         setNotes(data);
@@ -33,11 +25,11 @@ const Browse = ({ user }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedSubject, searchTerm]);
 
-  const fetchSubjects = async () => {
+  const fetchSubjects = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/subjects');
+      const response = await fetch(`${config.API_BASE_URL}/subjects`);
       if (response.ok) {
         const data = await response.json();
         setSubjects(data);
@@ -45,11 +37,20 @@ const Browse = ({ user }) => {
     } catch (error) {
       console.error('Error fetching subjects:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchNotes();
+    fetchSubjects();
+  }, [fetchNotes, fetchSubjects]);
+
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   const handleDownload = async (noteId, fileName) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/notes/${noteId}/download`);
+      const response = await fetch(`${config.API_BASE_URL}/notes/${noteId}/download`);
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);

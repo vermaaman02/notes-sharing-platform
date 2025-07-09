@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import config from '../config/api';
 import './Profile.css';
 
 const Profile = ({ user }) => {
@@ -17,7 +18,7 @@ const Profile = ({ user }) => {
   const fetchMyNotes = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/notes/my-notes', {
+      const response = await fetch(`${config.API_BASE_URL}/notes/my-notes`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

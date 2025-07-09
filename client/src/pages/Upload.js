@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import config from '../config/api';
 import './Upload.css';
 
 const Upload = ({ user }) => {
@@ -21,7 +22,7 @@ const Upload = ({ user }) => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/subjects');
+      const response = await fetch(`${config.API_BASE_URL}/subjects`);
       if (response.ok) {
         const data = await response.json();
         setSubjects(data);
@@ -63,7 +64,7 @@ const Upload = ({ user }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/notes/upload', {
+      const response = await fetch(`${config.API_BASE_URL}/notes/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
