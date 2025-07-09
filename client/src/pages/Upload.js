@@ -56,44 +56,67 @@ const Upload = ({ user }) => {
     setError('');
     setSuccess('');
 
-    const uploadData = new FormData();
-    uploadData.append('file', file);
-    uploadData.append('title', formData.title);
-    uploadData.append('description', formData.description);
-    uploadData.append('subject', formData.subject);
-    uploadData.append('course', formData.course);
-    uploadData.append('university', formData.university);
-
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${config.API_BASE_URL}/notes/upload`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: uploadData,
-      });
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const fileData = reader.result; // This is a data URL (includes data:type;base64,...)
+        
+        const uploadData = {
+          title: formData.title,
+          description: formData.description,
+          subject: formData.subject,
+          course: formData.course,
+          university: formData.university,
+          fileData: fileData,
+          fileName: file.name,
+          fileType: file.type,
+          fileSize: file.size
+        };
 
-      const data = await response.json();
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`${config.API_BASE_URL}/notes/upload`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(uploadData),
+          });
 
-      if (response.ok) {
-        setSuccess('Note uploaded successfully!');
-        setFormData({
-          title: '',
-          description: '',
-          subject: '',
-          course: '',
-          university: user?.university || ''
-        });
-        setFile(null);
-        // Reset file input
-        document.getElementById('file-input').value = '';
-      } else {
-        setError(data.message || 'Upload failed');
-      }
+          const data = await response.json();
+
+          if (response.ok) {
+            setSuccess('Note uploaded successfully!');
+            setFormData({
+              title: '',
+              description: '',
+              subject: '',
+              course: '',
+              university: user?.university || ''
+            });
+            setFile(null);
+            // Reset file input
+            document.getElementById('file-input').value = '';
+          } else {
+            setError(data.message || 'Upload failed');
+          }
+        } catch (error) {
+          setError('Network error. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      reader.onerror = () => {
+        setError('Error reading file');
+        setLoading(false);
+      };
+      
+      reader.readAsDataURL(file);
     } catch (error) {
-      setError('Network error. Please try again.');
-    } finally {
+      setError('Error processing file');
       setLoading(false);
     }
   };
