@@ -1,0 +1,21 @@
+{
+  "name": "notes-sharing-platform",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "build": "npm run client:build && npm run server:build",
+    "start": "npm run server:start",
+    "server:dev": "cd server && nodemon index.js",
+    "server:build": "cd server && npm run build",
+    "server:start": "cd server && npm start",
+    "client:dev": "cd client && npm start",
+    "client:build": "cd client && npm run build"
+  },
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
